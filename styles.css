@@ -1,0 +1,85 @@
+body{
+    box-sizing: border-box;
+    margin: 0;
+    font-family: sans-serif;
+    background-color: #222;
+    color: #ddd;
+    padding: 20px;
+}
+.formulario{
+    box-sizing: border-box;
+    width: 600px;
+    height: auto;
+    margin: auto;
+    padding: 15px 30px;
+    border: solid 1px transparent;
+    box-shadow: 0 0 5px #fff9;
+    border-radius: 6px;
+    background-color: #222;
+}
+.info-basica{
+    box-sizing: border-box;
+    display: flex;
+    width: 100%;
+    margin-bottom: 10px;
+}
+.infoSec{
+    width: 50%;
+}
+.imagen{
+    width: 150px;
+    height: 150px;
+    margin: auto;
+}
+#imagen{
+    display: none;
+}
+.imagen label{
+    width: 150px;
+    cursor: pointer;
+    margin: auto;
+}
+.imagen label img:hover{
+   transform: scale(1.1); 
+}
+.imagen label img{
+    width: 100%;
+    height: auto;
+}
+.input-form{
+    box-sizing: border-box;
+    padding: 6px 20px;
+}
+input, select{
+    box-sizing: border-box;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #ddd;
+    padding: 4px 8px;
+    color: #ddd;
+}
+input:focus{
+    outline: none;
+}
+select:focus{
+    outline: none;
+}
+select option{
+    background-color: #222;
+}
+h2{
+    text-align: center;
+}
+button{
+    background-color: #222;
+    color: #ddd;
+    border: 1px solid #ddd;
+    padding: 3px 5px;
+    border-radius: 4px;
+}
+button:hover{
+    text-shadow: 0 0 2px #ddd4;
+    box-shadow: 0 0 2px #ddd4;
+    transform: scale(1.1);
+}

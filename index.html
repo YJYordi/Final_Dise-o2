@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>CRUD</title>
+</head>
+<body>
+    <form class="formulario" action="submit">
+        <h2>FORMULARIO</h2>
+        <div class="info-basica">
+            <div class="infoPrim">
+                <div class="input-form">
+                    <label for="docTipo">Tipo de documento</label>
+                    <select name="" id="docTipo">
+                        <option value="CC">Cédula</option>
+                        <option value="TI">Tarjeta de Identidad</option>
+                    </select>
+                </div>
+                <div class="input-form">
+                    <label for="doc">Nro. Documento</label>
+                    <input  id="doc" type="text" minlength="10" placeholder="xxxxxxxxx">
+                </div>
+                <div class="input-form">
+                    <label for="primNombre">Primer Nombre</label>
+                    <input id="primNombre" type="text" placeholder="Juan" minlength="30">
+                </div>
+                <div class="input-form">
+                    <label for="segNombre">Segundo Nombre</label>
+                    <input id="segNombre" type="text" placeholder="David" minlength="30">
+                </div>
+                <div class="input-form">
+                    <label for="apellidos">Apellidos</label>
+                    <input id="apellidos" type="text" placeholder="Garcia Corro" minlength="60">
+                </div>
+            </div>
+            <div class="imagen">
+                <label for="imagen"><img src="img\user.png" alt="user-image"></label>
+                <input id="imagen" type="file">
+            </div>
+        </div>
+        <div class="infoSec">
+            <div class="input-form">
+                <label for="fechaNac">Fecha de Nacimiento</label>
+                <input id="fechaNac" type="date">
+            </div>            
+            <div class="input-form">
+                <label for="genero">Género</label>
+                <select name="" id="genero">
+                    <option value="F">Femenino</option>
+                    <option value="M">Masculino</option>
+                </select>
+            </div>
+            <div class="input-form">
+                <label for="email">Corrro Electrónico</label>
+                <input id="email" type="text" placeholder="ejemplo@gmail.com">
+            </div>
+            <div class="input-form">
+                <label for="cel">Nro. Celular</label>
+                <input id="cel" type="text" minlength="10" placeholder="xxxxxxxxx">
+            </div>
+        </div>
+        <div class="input-form">
+            <button type="submit">Enviar</button>
+        </div>
+    </form>
+</body>
+</html>
