@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta por Lenguaje Natural</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="audio.css">
+    <link rel="stylesheet" href="llm.css">
+</head>
+<body>
+    <div class="formulario">
+        <div class="titulo">
+            <button onclick="event.preventDefault(); window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
+            <h2>CONSULTA EN LENGUAJE NATURAL</h2>
+        </div>
+        
+        <div class="consulta-container">
+            <div class="seccion">
+                <h4>Pregunta:</h4>
+                <div class="pregunta-box">
+                    <input type="text" id="consulta" name="consulta" placeholder="Escribe tu pregunta aquí..." required>
+                    <button onclick="enviarConsulta()" class="enviar-btn">Enviar</button>
+                </div>
+            </div>
+
+            <div class="seccion">
+                <h4>Respuesta:</h4>
+                <div id="resultado" class="respuesta-box">
+                    <p>La respuesta aparecerá aquí...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="llm.js"></script>
+</body>
+</html> 
