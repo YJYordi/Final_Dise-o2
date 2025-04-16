@@ -1,0 +1,96 @@
+.titulo {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.titulo h2 {
+    font-size: 2em;
+    margin-bottom: 5px;
+}
+
+
+.descripcion {
+    text-align: center;
+    margin-bottom: 40px;
+    font-size: 1.2em;
+    color: #ddd;
+}
+
+.consulta-container {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.seccion {
+    width: 100%;
+}
+
+.seccion h4 {
+    font-size: 1.3em;
+    margin-bottom: 15px;
+    color: #ddd;
+}
+
+.pregunta-box {
+    display: flex;
+    gap: 10px;
+    width: 100%;
+}
+
+.pregunta-box input {
+    flex: 1;
+    padding: 10px;
+    font-size: 1em;
+    background-color: #333;
+    border: 2px solid #666;
+    border-radius: 5px;
+    color: white;
+}
+
+.pregunta-box input:focus {
+    border-color: #888;
+    outline: none;
+}
+
+.enviar-btn {
+    padding: 10px 20px;
+    background-color: #444;
+    border: none;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.enviar-btn:hover {
+    background-color: #555;
+    transform: scale(1.05);
+}
+
+.respuesta-box {
+    padding: 20px;
+    background-color: #333;
+    border: 2px solid #666;
+    border-radius: 5px;
+    min-height: 100px;
+}
+
+.back-button {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+.back-button img {
+    width: 30px;
+    height: 30px;
+    transition: transform 0.3s ease;
+}
+
+.back-button:hover img {
+    transform: scale(1.1);
+} 
