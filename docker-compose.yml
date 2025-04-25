@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   main-service:
-    build: ./Final_Dise-o2/main-service
+    build: ./main-service
     ports:
       - "8000:8000"
     environment:
