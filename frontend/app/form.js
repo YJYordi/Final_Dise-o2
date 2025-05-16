@@ -16,6 +16,10 @@ document.addEventListener('DOMContentLoaded', function() {
         const cel = document.getElementById('cel').value;
         const imagen = document.getElementById('imagen').files[0];
         
+
+        //Validar datos del form
+        
+
         // Crear objeto con los datos del formulario
         const formData = new FormData();
         formData.append('docTipo', docTipo);
