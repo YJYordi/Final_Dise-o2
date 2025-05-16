@@ -1,67 +1,63 @@
+# query-service/main.py
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from typing import List, Optional
 import os
-from sqlalchemy import create_engine, text
-from sqlalchemy.orm import sessionmaker
 from langchain.llms import OpenAI
 from langchain.chains import LLMChain
 from langchain.prompts import PromptTemplate
 from dotenv import load_dotenv
 
 load_dotenv()
-
 app = FastAPI()
 
-# Database setup
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@db:5432/personas")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+# —— FIRESTORE SETUP (reemplaza SQLAlchemy) ——
 
-# LLM setup
+import firebase_admin
+from firebase_admin import credentials, firestore
+
+if not firebase_admin._apps:
+    cred = credentials.Certificate(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+    firebase_admin.initialize_app(cred)
+
+db = firestore.client()
+COL = db.collection("personas")
+
+
+# —— LLM SETUP (sin cambios) ——
+
 llm = OpenAI(temperature=0)
+
 
 class QueryRequest(BaseModel):
     query: str
+
 
 class QueryResponse(BaseModel):
     answer: str
     relevant_data: Optional[List[dict]] = None
 
+
+# —— get_relevant_data refactorizado para Firestore ——
+
 def get_relevant_data(query: str) -> List[dict]:
-    db = SessionLocal()
-    try:
-        search_terms = query.lower().split()
-        
-        conditions = []
-        params = {}
-        
-        for i, term in enumerate(search_terms):
-            if term.isdigit():
-                # Search in document number
-                conditions.append(f"numero_documento LIKE :doc_{i}")
-                params[f"doc_{i}"] = f"%{term}%"
-            else:
-                # Search in names and other text fields
-                conditions.append(f"""
-                    (LOWER(primer_nombre) LIKE :name_{i} OR 
-                     LOWER(segundo_nombre) LIKE :name_{i} OR 
-                     LOWER(apellidos) LIKE :name_{i} OR 
-                     LOWER(email) LIKE :name_{i})
-                """)
-                params[f"name_{i}"] = f"%{term}%"
-        
-        where_clause = " OR ".join(conditions)
-        sql = f"""
-            SELECT * FROM personas 
-            WHERE {where_clause}
-            LIMIT 5
-        """
-        
-        result = db.execute(text(sql), params)
-        return [dict(row) for row in result]
-    finally:
-        db.close()
+    terms = query.lower().split()
+    docs = COL.stream()
+    records = [doc.to_dict() for doc in docs]
+
+    filtered = []
+    for rec in records:
+        text = " ".join(str(v).lower() for v in rec.values())
+        if any(term in text for term in terms):
+            filtered.append(rec)
+            if len(filtered) >= 5:
+                break
+
+    return filtered
+
+
+# —— generate_answer (igual) ——
 
 def generate_answer(query: str, relevant_data: List[dict]) -> str:
     template = """
@@ -74,29 +70,19 @@ def generate_answer(query: str, relevant_data: List[dict]) -> str:
 
     Respuesta:
     """
-    
-    prompt = PromptTemplate(
-        input_variables=["query", "relevant_data"],
-        template=template
-    )
-    
+    prompt = PromptTemplate(input_variables=["query", "relevant_data"], template=template)
     chain = LLMChain(llm=llm, prompt=prompt)
-    
-    formatted_data = "\n".join([str(data) for data in relevant_data])
-    response = chain.run(query=query, relevant_data=formatted_data)
-    
-    return response
+    formatted = "\n".join(str(d) for d in relevant_data)
+    return chain.run(query=query, relevant_data=formatted)
+
+
+# —— Endpoint ——
 
 @app.post("/query/", response_model=QueryResponse)
 async def process_query(request: QueryRequest):
     try:
         relevant_data = get_relevant_data(request.query)
-        
         answer = generate_answer(request.query, relevant_data)
-        
-        return QueryResponse(
-            answer=answer,
-            relevant_data=relevant_data if relevant_data else None
-        )
+        return QueryResponse(answer=answer, relevant_data=relevant_data or None)
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e)) 
+        raise HTTPException(status_code=500, detail=str(e))

@@ -1,30 +1,22 @@
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from typing import List, Optional
 import os
-from sqlalchemy import create_engine, Column, Integer, String, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+
+# —— FIREBASE ADMIN SDK ——
+import firebase_admin
+from firebase_admin import credentials, firestore
 
 app = FastAPI()
 
-# Database setup
-DATABASE_URL = os.getenv("DATABASE_URL", "postgresql://postgres:password@db:5432/personas")
-engine = create_engine(DATABASE_URL)
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-Base = declarative_base()
+# Inicializar Firebase una sola vez
+if not firebase_admin._apps:
+    cred = credentials.Certificate(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+    firebase_admin.initialize_app(cred)
+db = firestore.client()
+COL = db.collection("logs")
 
-class Log(Base):
-    __tablename__ = "logs"
-
-    id = Column(Integer, primary_key=True, index=True)
-    tipo = Column(String)
-    documento = Column(String)
-    detalles = Column(String)
-    fecha = Column(DateTime, default=datetime.utcnow)
-
-Base.metadata.create_all(bind=engine)
 
 class LogCreate(BaseModel):
     tipo: str
@@ -32,45 +24,38 @@ class LogCreate(BaseModel):
     detalles: str
 
 class LogResponse(LogCreate):
-    id: int
+    id: str
     fecha: datetime
 
     class Config:
         from_attributes = True
 
+
 @app.post("/logs/", response_model=LogResponse)
 async def create_log(log: LogCreate):
-    db = SessionLocal()
-    try:
-        db_log = Log(**log.dict())
-        db.add(db_log)
-        db.commit()
-        db.refresh(db_log)
-        return db_log
-    finally:
-        db.close()
+    data = log.dict()
+    data["fecha"] = datetime.utcnow()
+    doc_ref = COL.document()     # Firestore genera un ID automático
+    doc_ref.set(data)
+    return {"id": doc_ref.id, **data}
 
-@app.get("/logs/")
+
+@app.get("/logs/", response_model=List[LogResponse])
 async def get_logs(
     tipo: Optional[str] = None,
     documento: Optional[str] = None,
     fecha_inicio: Optional[datetime] = None,
     fecha_fin: Optional[datetime] = None
 ):
-    db = SessionLocal()
-    try:
-        query = db.query(Log)
-        
-        if tipo:
-            query = query.filter(Log.tipo == tipo)
-        if documento:
-            query = query.filter(Log.documento == documento)
-        if fecha_inicio:
-            query = query.filter(Log.fecha >= fecha_inicio)
-        if fecha_fin:
-            query = query.filter(Log.fecha <= fecha_fin)
-        
-        logs = query.order_by(Log.fecha.desc()).all()
-        return logs
-    finally:
-        db.close() 
+    q = COL
+    if tipo:
+        q = q.where("tipo", "==", tipo)
+    if documento:
+        q = q.where("documento", "==", documento)
+    if fecha_inicio:
+        q = q.where("fecha", ">=", fecha_inicio)
+    if fecha_fin:
+        q = q.where("fecha", "<=", fecha_fin)
+    # Orden descendente por fecha
+    docs = q.order_by("fecha", direction=firestore.Query.DESCENDING).stream()
+    return [{"id": doc.id, **doc.to_dict()} for doc in docs]

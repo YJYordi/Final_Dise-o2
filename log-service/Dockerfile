@@ -1,4 +1,4 @@
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 WORKDIR /app
 
@@ -7,4 +7,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8002"] 
+
+ENV GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase-sa
+
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8002"]
