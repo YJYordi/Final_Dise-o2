@@ -13,4 +13,4 @@ COPY . .
 ENV GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase-sa
 
 # Expone el puerto y arranca Uvicorn
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
