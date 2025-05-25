@@ -1,4 +1,14 @@
 services:
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - main-service
+      - query-service
+      - log-service
+
   main-service:
     build:
       context: ./main-service

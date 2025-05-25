@@ -3,23 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD</title>
+    <title>CRUD - Consultar</title>
     <link rel="stylesheet" href="styles.css">
+    <style>
+        .resultado-consulta {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .resultado-consulta h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .resultado-consulta p {
+            margin: 5px 0;
+        }
+        .acciones {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .acciones button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .acciones button:first-child {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .acciones button:last-child {
+            background-color: #f44336;
+            color: white;
+        }
+    </style>
 </head>
 <body>
     <form class="formulario">
         <div class="titulo">
-            <button onclick="event.preventDefault(); window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
+            <button type="button" onclick="window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
             <h2>CONSULTAR</h2>
             <button></button>
         </div>
         <div class="input-form">
             <label for="doc">Nro. Documento</label>
-            <input  id="doc" type="text" minlength="10" placeholder="xxxxxxxxx">
+            <input id="doc" type="text" minlength="1" maxlength="10" placeholder="Ingrese el número de documento" required>
         </div>
         <div class="input-form">
             <button type="submit">Consultar</button>
         </div>
     </form>
+    <script src="consult.js"></script>
 </body>
 </html>

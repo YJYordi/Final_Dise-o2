@@ -1,87 +1,88 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('.formulario');
+    const errores = [];
     
-    form.addEventListener('submit', function(event) {
+    form.addEventListener('submit', async function(event) {
         event.preventDefault();
+        errores.length = 0; // Limpiar errores anteriores
         
         // Obtener los valores del formulario
-        const docTipo = document.getElementById('docTipo').value;
-        const doc = document.getElementById('doc').value;
-        const primNombre = document.getElementById('primNombre').value;
-        const segNombre = document.getElementById('segNombre').value;
-        const apellidos = document.getElementById('apellidos').value;
-        const fechaNac = document.getElementById('fechaNac').value;
-        const genero = document.getElementById('genero').value;
-        const email = document.getElementById('email').value;
-        const cel = document.getElementById('cel').value;
-        const imagen = document.getElementById('imagen').files[0];
-        
+        const formData = {
+            tipo_documento: document.getElementById('docTipo').value === 'CC' ? 'Cédula' : 'Tarjeta de identidad',
+            numero_documento: document.getElementById('doc').value,
+            primer_nombre: document.getElementById('primNombre').value,
+            segundo_nombre: document.getElementById('segNombre').value || null,
+            apellidos: document.getElementById('apellidos').value,
+            fecha_nacimiento: document.getElementById('fechaNac').value,
+            genero: document.getElementById('genero').value === 'M' ? 'Masculino' : 'Femenino',
+            email: document.getElementById('email').value,
+            celular: document.getElementById('cel').value
+        };
 
-        //Validar datos del form
-        
         // Validaciones
-        if (doc.length < 7 || !/^\d+$/.test(doc)) {
-            errores.push("El número de documento debe tener al menos 7 dígitos numéricos.");
+        if (!/^\d{1,10}$/.test(formData.numero_documento)) {
+            errores.push("El número de documento debe ser numérico y no mayor a 10 caracteres");
         }
 
-        if (primNombre === "" || primNombre.length > 30) {
-            errores.push("El primer nombre es obligatorio y debe tener máximo 30 caracteres.");
+        if (!formData.primer_nombre || formData.primer_nombre.length > 30 || /^\d+$/.test(formData.primer_nombre)) {
+            errores.push("El primer nombre es obligatorio, no debe ser numérico y debe tener máximo 30 caracteres");
         }
 
-        if (segNombre.length > 30) {
-            errores.push("El segundo nombre debe tener máximo 30 caracteres.");
+        if (formData.segundo_nombre && (formData.segundo_nombre.length > 30 || /^\d+$/.test(formData.segundo_nombre))) {
+            errores.push("El segundo nombre no debe ser numérico y debe tener máximo 30 caracteres");
         }
 
-        if (apellidos === "" || apellidos.length > 60) {
-            errores.push("Los apellidos son obligatorios y deben tener máximo 60 caracteres.");
+        if (!formData.apellidos || formData.apellidos.length > 60 || /^\d+$/.test(formData.apellidos)) {
+            errores.push("Los apellidos son obligatorios, no deben ser numéricos y deben tener máximo 60 caracteres");
         }
 
-        if (!fechaNac) {
-            errores.push("La fecha de nacimiento es obligatoria.");
+        if (!formData.fecha_nacimiento) {
+            errores.push("La fecha de nacimiento es obligatoria");
         }
 
-        if (email && !/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(email)) {
-            errores.push("El correo electrónico no es válido.");
+        if (!/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(formData.email)) {
+            errores.push("El correo electrónico no es válido");
         }
 
-        if (cel && (!/^\d{10}$/.test(cel))) {
-            errores.push("El número de celular debe tener exactamente 10 dígitos.");
+        if (!/^\d{10}$/.test(formData.celular)) {
+            errores.push("El número de celular debe tener exactamente 10 dígitos");
         }
 
-        // Si hay errores, evitamos el envío
+        // Validar imagen si existe
+        const imagen = document.getElementById('imagen').files[0];
+        if (imagen && imagen.size > 2 * 1024 * 1024) {
+            errores.push("La imagen no debe superar los 2MB");
+        }
+
+        // Si hay errores, mostrarlos y detener el envío
         if (errores.length > 0) {
-            event.preventDefault();
             alert("Errores en el formulario:\n\n" + errores.join("\n"));
+            return;
         }
 
-        // Crear objeto con los datos del formulario
-        const formData = new FormData();
-        formData.append('docTipo', docTipo);
-        formData.append('doc', doc);
-        formData.append('primNombre', primNombre);
-        formData.append('segNombre', segNombre);
-        formData.append('apellidos', apellidos);
-        formData.append('fechaNac', fechaNac);
-        formData.append('genero', genero);
-        formData.append('email', email);
-        formData.append('cel', cel);
-        if (imagen) {
-            formData.append('imagen', imagen);
-        }
-        
-        // Enviar datos al servidor
-        fetch('/api/usuarios', {
-            method: 'POST',
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-            alert('Usuario registrado exitosamente');
-            window.location.href = '/index.html';
-        })
-        .catch(error => {
+        try {
+            // Crear FormData para enviar la imagen si existe
+            const submitData = new FormData();
+            if (imagen) {
+                submitData.append('foto', imagen);
+            }
+            submitData.append('persona', JSON.stringify(formData));
+
+            const response = await fetch('/api/personas/', {
+                method: 'POST',
+                body: submitData
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            alert('Persona registrada exitosamente');
+            window.location.href = '../index.html';
+        } catch (error) {
             console.error('Error:', error);
-            alert('Error al registrar el usuario');
-        });
+            alert('Error al registrar la persona: ' + error.message);
+        }
     });
 }); 

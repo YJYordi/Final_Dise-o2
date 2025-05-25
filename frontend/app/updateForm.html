@@ -4,70 +4,73 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="styles.css">
-    <title>CRUD</title>
+    <title>CRUD - Actualizar</title>
 </head>
 <body>
     <form class="formulario">
         <div class="titulo">
-            <button onclick="event.preventDefault(); window.location.href='update.html'"><img src="../img/flecha.png" alt="regresar"></button>
-            <h2>MODIFICAR</h2>
+            <button type="button" onclick="window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
+            <h2>ACTUALIZAR</h2>
             <button></button>
         </div>
         <div class="info-basica">
             <div class="infoPrim">
                 <div class="input-form">
                     <label for="docTipo">Tipo de documento</label>
-                    <select name="" id="docTipo">
+                    <select name="" id="docTipo" required>
                         <option value="CC">Cédula</option>
                         <option value="TI">Tarjeta de Identidad</option>
                     </select>
                 </div>
                 <div class="input-form">
                     <label for="doc">Nro. Documento</label>
-                    <input  id="doc" type="text" minlength="10" placeholder="xxxxxxxxx">
+                    <input id="doc" type="text" minlength="1" maxlength="10" placeholder="xxxxxxxxx" required readonly>
                 </div>
                 <div class="input-form">
                     <label for="primNombre">Primer Nombre</label>
-                    <input id="primNombre" type="text" placeholder="Juan" minlength="30">
+                    <input id="primNombre" type="text" placeholder="Juan" maxlength="30" required>
                 </div>
                 <div class="input-form">
                     <label for="segNombre">Segundo Nombre</label>
-                    <input id="segNombre" type="text" placeholder="David" minlength="30">
+                    <input id="segNombre" type="text" placeholder="David" maxlength="30">
                 </div>
                 <div class="input-form">
                     <label for="apellidos">Apellidos</label>
-                    <input id="apellidos" type="text" placeholder="Garcia Corro" minlength="60">
+                    <input id="apellidos" type="text" placeholder="Garcia Corro" maxlength="60" required>
                 </div>
             </div>
             <div class="imagen">
-                <label for="imagen"><img src="../img\user.png" alt="user-image"></label>
-                <input id="imagen" type="file">
+                <label for="imagen"><img src="../img/user.png" alt="user-image"></label>
+                <input id="imagen" type="file" accept="image/*">
             </div>
         </div>
         <div class="infoSec">
             <div class="input-form">
                 <label for="fechaNac">Fecha de Nacimiento</label>
-                <input id="fechaNac" type="date">
+                <input id="fechaNac" type="date" required>
             </div>            
             <div class="input-form">
                 <label for="genero">Género</label>
-                <select name="" id="genero">
-                    <option value="F">Femenino</option>
+                <select name="" id="genero" required>
                     <option value="M">Masculino</option>
+                    <option value="F">Femenino</option>
+                    <option value="NB">No binario</option>
+                    <option value="NR">Prefiero no reportar</option>
                 </select>
             </div>
             <div class="input-form">
                 <label for="email">Correo Electrónico</label>
-                <input id="email" type="text" placeholder="ejemplo@gmail.com">
+                <input id="email" type="email" placeholder="ejemplo@gmail.com" required>
             </div>
             <div class="input-form">
                 <label for="cel">Nro. Celular</label>
-                <input id="cel" type="text" minlength="10" placeholder="xxxxxxxxx">
+                <input id="cel" type="text" minlength="10" maxlength="10" placeholder="xxxxxxxxxx" required>
             </div>
         </div>
         <div class="input-form">
             <button type="submit">Actualizar</button>
         </div>
     </form>
+    <script src="update.js"></script>
 </body>
 </html>

@@ -8,6 +8,4 @@ COPY app/ /usr/share/nginx/html/app/
 COPY img/ /usr/share/nginx/html/img/
 COPY audio/ /usr/share/nginx/html/audio/
 
-EXPOSE 80
-
 CMD ["nginx", "-g", "daemon off;"] 
