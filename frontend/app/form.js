@@ -19,6 +19,40 @@ document.addEventListener('DOMContentLoaded', function() {
 
         //Validar datos del form
         
+        // Validaciones
+        if (doc.length < 7 || !/^\d+$/.test(doc)) {
+            errores.push("El número de documento debe tener al menos 7 dígitos numéricos.");
+        }
+
+        if (primNombre === "" || primNombre.length > 30) {
+            errores.push("El primer nombre es obligatorio y debe tener máximo 30 caracteres.");
+        }
+
+        if (segNombre.length > 30) {
+            errores.push("El segundo nombre debe tener máximo 30 caracteres.");
+        }
+
+        if (apellidos === "" || apellidos.length > 60) {
+            errores.push("Los apellidos son obligatorios y deben tener máximo 60 caracteres.");
+        }
+
+        if (!fechaNac) {
+            errores.push("La fecha de nacimiento es obligatoria.");
+        }
+
+        if (email && !/^[\w.-]+@[a-zA-Z\d.-]+\.[a-zA-Z]{2,}$/.test(email)) {
+            errores.push("El correo electrónico no es válido.");
+        }
+
+        if (cel && (!/^\d{10}$/.test(cel))) {
+            errores.push("El número de celular debe tener exactamente 10 dígitos.");
+        }
+
+        // Si hay errores, evitamos el envío
+        if (errores.length > 0) {
+            event.preventDefault();
+            alert("Errores en el formulario:\n\n" + errores.join("\n"));
+        }
 
         // Crear objeto con los datos del formulario
         const formData = new FormData();
