@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from datetime import datetime
 from typing import List, Optional
@@ -9,6 +10,15 @@ import firebase_admin
 from firebase_admin import credentials, firestore
 
 app = FastAPI()
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # En producción, especificar los orígenes permitidos
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Inicializar Firebase una sola vez
 if not firebase_admin._apps:
@@ -47,15 +57,29 @@ async def get_logs(
     fecha_inicio: Optional[datetime] = None,
     fecha_fin: Optional[datetime] = None
 ):
-    q = COL
-    if tipo:
-        q = q.where("tipo", "==", tipo)
-    if documento:
-        q = q.where("documento", "==", documento)
-    if fecha_inicio:
-        q = q.where("fecha", ">=", fecha_inicio)
-    if fecha_fin:
-        q = q.where("fecha", "<=", fecha_fin)
-    # Orden descendente por fecha
-    docs = q.order_by("fecha", direction=firestore.Query.DESCENDING).stream()
-    return [{"id": doc.id, **doc.to_dict()} for doc in docs]
+    try:
+        # Obtener todos los logs y filtrar en memoria
+        # Esto es más simple y no requiere índices compuestos
+        q = COL.order_by("fecha", direction=firestore.Query.DESCENDING)
+        docs = q.stream()
+        logs = [{"id": doc.id, **doc.to_dict()} for doc in docs]
+
+        # Aplicar filtros en memoria
+        if tipo:
+            tipos = [t.strip() for t in tipo.split(',')]
+            logs = [log for log in logs if log["tipo"] in tipos]
+        
+        if documento:
+            logs = [log for log in logs if log["documento"] == documento]
+        
+        if fecha_inicio:
+            logs = [log for log in logs if log["fecha"] >= fecha_inicio]
+        
+        if fecha_fin:
+            logs = [log for log in logs if log["fecha"] <= fecha_fin]
+
+        return logs
+
+    except Exception as e:
+        print(f"Error en get_logs: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))

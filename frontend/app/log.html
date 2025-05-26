@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consulta por Lenguaje Natural</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="index.css">
+    <link rel="stylesheet" href="audio.css">
+    <link rel="stylesheet" href="log.css">
+</head>
+<body>
+    <div class="log-container">
+        <div class="titulo">
+            <button onclick="event.preventDefault(); window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
+            <h2>CONSULTAR LOG</h2>
+        </div>
+
+        <div class="filter-section">
+            <label>Filtros:</label>
+            <div class="filter-options">
+                <div class="filter-option">
+                    <input type="checkbox" id="create" checked>
+                    <label for="create">Crear</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="modify" checked>
+                    <label for="modify">Modificar</label>
+                </div>
+                <div class="filter-option">
+                    <input type="checkbox" id="delete">
+                    <label for="delete">Eliminar</label>
+                </div>
+            </div>
+        </div>
+        
+        <div class="filter-section">
+            <label for="document">Documento:</label>
+            <input type="text" id="document" placeholder="Ej: 1234567890">
+        </div>
+        
+        <div class="filter-section">
+            <label for="date-from">Fecha desde:</label>
+            <input type="date" id="date-from">
+            
+            <label for="date-to" style="margin-top: 10px;">hasta:</label>
+            <input type="date" id="date-to">
+        </div>
+        
+        <button class="search-btn">Buscar</button>
+        
+        <div class="results">
+            <div class="results-title">Resultados</div>
+           
+        </div>
+    </div>
+    <script src="log.js"></script>
+</body>
+</html>
