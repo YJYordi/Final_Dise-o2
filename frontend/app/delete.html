@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD</title>
     <link rel="stylesheet" href="styles.css">
+    <script src="delete.js" defer></script>
+    <title>Eliminar Persona</title>
 </head>
 <body>
-    <form class="formulario">
+    <form class="delete-form">
         <div class="titulo">
-            <button onclick="event.preventDefault(); window.location.href='../index.html'"><img src= "../img/flecha.png" alt="regresar"></button>
-            <h2>ELIMINAR</h2>
+            <button onclick="event.preventDefault(); window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
+            <h2>Eliminar Persona</h2>
             <button></button>
         </div>
+        
         <div class="input-form">
-            <label for="doc">Nro. Documento</label>
-            <input  id="doc" type="text" minlength="10" placeholder="xxxxxxxxx">
+            <label for="docToDelete">Número de Documento a Eliminar</label>
+            <input id="docToDelete" type="text" maxlength="10" placeholder="xxxxxxxxx" required>
         </div>
         <div class="input-form">
-            <button type="submit">Eliminar</button>
+            <button type="submit">Eliminar Persona</button>
         </div>
+        <div id="message"></div>
     </form>
 </body>
 </html>
