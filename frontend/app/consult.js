@@ -1,6 +1,18 @@
 document.addEventListener('DOMContentLoaded', function() {
     const form = document.querySelector('.formulario');
     
+    // Función para mostrar los datos de la persona
+    function mostrarDatosPersona(persona) {
+        // Eliminar el contenedor de resultados si existe (ya no mostraremos aquí)
+        const resultadoDiv = document.querySelector('.resultado-consulta');
+        if (resultadoDiv) {
+            resultadoDiv.remove();
+        }
+
+        // Redirigir al formulario de registro con el número de documento para modificar
+        window.location.href = `form.html?doc=${persona.numero_documento}`;
+    }
+    
     form.addEventListener('submit', async function(event) {
         event.preventDefault();
         const numeroDocumento = document.getElementById('doc').value;
@@ -11,7 +23,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
 
         try {
+            // Mostrar indicador de carga
+            const submitButton = form.querySelector('button[type="submit"]');
+            const originalText = submitButton.textContent;
+            submitButton.textContent = 'Consultando...';
+            submitButton.disabled = true;
+
             const response = await fetch(`/api/personas/${numeroDocumento}`);
+            
+            // Restaurar el botón
+            submitButton.textContent = originalText;
+            submitButton.disabled = false;
             
             if (!response.ok) {
                 if (response.status === 404) {
@@ -21,35 +43,15 @@ document.addEventListener('DOMContentLoaded', function() {
             }
 
             const persona = await response.json();
-            
-            // Crear elemento para mostrar los datos
-            const resultadoDiv = document.createElement('div');
-            resultadoDiv.className = 'resultado-consulta';
-            resultadoDiv.innerHTML = `
-                <h3>Datos de la Persona</h3>
-                <p><strong>Tipo de Documento:</strong> ${persona.tipo_documento}</p>
-                <p><strong>Número de Documento:</strong> ${persona.numero_documento}</p>
-                <p><strong>Nombre Completo:</strong> ${persona.primer_nombre} ${persona.segundo_nombre || ''} ${persona.apellidos}</p>
-                <p><strong>Fecha de Nacimiento:</strong> ${new Date(persona.fecha_nacimiento).toLocaleDateString()}</p>
-                <p><strong>Género:</strong> ${persona.genero}</p>
-                <p><strong>Email:</strong> ${persona.email}</p>
-                <p><strong>Celular:</strong> ${persona.celular}</p>
-                ${persona.foto_url ? `<img src="${persona.foto_url}" alt="Foto de perfil" style="max-width: 200px;">` : ''}
-                <div class="acciones">
-                    <button onclick="window.location.href='update.html?doc=${persona.numero_documento}'">Actualizar</button>
-                    <button onclick="eliminarPersona('${persona.numero_documento}')">Eliminar</button>
-                </div>
-            `;
-
-            // Limpiar resultados anteriores y mostrar el nuevo
-            const resultadosAnteriores = document.querySelector('.resultado-consulta');
-            if (resultadosAnteriores) {
-                resultadosAnteriores.remove();
-            }
-            form.after(resultadoDiv);
+            mostrarDatosPersona(persona);
 
         } catch (error) {
             alert(error.message);
+            // Limpiar resultados si hay error
+            const resultadoDiv = document.querySelector('.resultado-consulta');
+            if (resultadoDiv) {
+                resultadoDiv.remove();
+            }
         }
     });
 });
@@ -66,6 +68,11 @@ async function eliminarPersona(numeroDocumento) {
             }
 
             alert('Persona eliminada exitosamente');
+            // Limpiar resultados y volver a la página principal
+            const resultadoDiv = document.querySelector('.resultado-consulta');
+            if (resultadoDiv) {
+                resultadoDiv.remove();
+            }
             window.location.href = '../index.html';
         } catch (error) {
             alert(error.message);

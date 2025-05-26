@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="../img/favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <title>CRUD</title>
 </head>
@@ -24,19 +26,19 @@
                 </div>
                 <div class="input-form">
                     <label for="doc">Nro. Documento</label>
-                    <input  id="doc" type="text" minlength="10" placeholder="xxxxxxxxx" required>
+                    <input  id="doc" type="text" maxlength="10" placeholder="xxxxxxxxx" required>
                 </div>
                 <div class="input-form">
                     <label for="primNombre">Primer Nombre</label>
-                    <input id="primNombre" type="text" placeholder="Juan" minlength="30" required>
+                    <input id="primNombre" type="text" placeholder="Juan" maxlength="30" required>
                 </div>
                 <div class="input-form">
                     <label for="segNombre">Segundo Nombre</label>
-                    <input id="segNombre" type="text" placeholder="David" minlength="30" required>
+                    <input id="segNombre" type="text" placeholder="David" maxlength="30">
                 </div>
                 <div class="input-form">
                     <label for="apellidos">Apellidos</label>
-                    <input id="apellidos" type="text" placeholder="Garcia Corro" minlength="60" required>
+                    <input id="apellidos" type="text" placeholder="Garcia Corro" maxlength="60" required>
                 </div>
             </div>
             <div class="imagen">
@@ -62,7 +64,7 @@
             </div>
             <div class="input-form">
                 <label for="cel">Nro. Celular</label>
-                <input id="cel" type="text" minlength="10" placeholder="xxxxxxxxx">
+                <input id="cel" type="text" maxlength="10" placeholder="xxxxxxxxx" required>
             </div>
         </div>
         <div class="input-form">
@@ -70,4 +72,5 @@
         </div>
     </form>
 </body>
+<script src="form.js"></script>
 </html>

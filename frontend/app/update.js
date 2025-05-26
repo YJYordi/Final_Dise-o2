@@ -29,7 +29,17 @@ document.addEventListener('DOMContentLoaded', async function() {
         document.getElementById('segNombre').value = persona.segundo_nombre || '';
         document.getElementById('apellidos').value = persona.apellidos;
         document.getElementById('fechaNac').value = persona.fecha_nacimiento;
-        document.getElementById('genero').value = persona.genero === 'Masculino' ? 'M' : 'F';
+        
+        // Mapear el género
+        let generoValue = 'M';
+        switch(persona.genero) {
+            case 'Masculino': generoValue = 'M'; break;
+            case 'Femenino': generoValue = 'F'; break;
+            case 'No binario': generoValue = 'NB'; break;
+            case 'Prefiero no reportar': generoValue = 'NR'; break;
+        }
+        document.getElementById('genero').value = generoValue;
+        
         document.getElementById('email').value = persona.email;
         document.getElementById('cel').value = persona.celular;
 
@@ -41,13 +51,13 @@ document.addEventListener('DOMContentLoaded', async function() {
 
             // Obtener los valores actualizados
             const formData = {
-                tipo_documento: document.getElementById('docTipo').value === 'CC' ? 'Cédula' : 'Tarjeta de identidad',
+                tipo_documento: document.getElementById('docTipo').value,
                 numero_documento: document.getElementById('doc').value,
                 primer_nombre: document.getElementById('primNombre').value,
                 segundo_nombre: document.getElementById('segNombre').value || null,
                 apellidos: document.getElementById('apellidos').value,
                 fecha_nacimiento: document.getElementById('fechaNac').value,
-                genero: document.getElementById('genero').value === 'M' ? 'Masculino' : 'Femenino',
+                genero: document.getElementById('genero').value,
                 email: document.getElementById('email').value,
                 celular: document.getElementById('cel').value
             };
@@ -95,23 +105,36 @@ document.addEventListener('DOMContentLoaded', async function() {
             try {
                 // Crear FormData para enviar la imagen si existe
                 const submitData = new FormData();
+                submitData.append('persona', JSON.stringify(formData));
                 if (imagen) {
                     submitData.append('foto', imagen);
                 }
-                submitData.append('persona', JSON.stringify(formData));
+
+                console.log('Enviando datos actualizados:', formData); // Debug
 
                 const updateResponse = await fetch(`/api/personas/${numeroDocumento}`, {
                     method: 'PUT',
                     body: submitData
                 });
 
+                const responseData = await updateResponse.json();
+
                 if (!updateResponse.ok) {
-                    throw new Error(`Error al actualizar: ${updateResponse.status}`);
+                    throw new Error(responseData.detail || `Error ${updateResponse.status}`);
+                }
+
+                console.log('Respuesta del servidor:', responseData); // Debug
+
+                // Verificar que los datos se actualizaron correctamente
+                const verifyResponse = await fetch(`/api/personas/${numeroDocumento}`);
+                if (!verifyResponse.ok) {
+                    throw new Error('Error al verificar la actualización de datos');
                 }
 
                 alert('Persona actualizada exitosamente');
                 window.location.href = '../index.html';
             } catch (error) {
+                console.error('Error:', error);
                 alert('Error al actualizar la persona: ' + error.message);
             }
         });

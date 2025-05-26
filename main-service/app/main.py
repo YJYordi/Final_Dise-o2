@@ -1,10 +1,11 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, EmailStr, validator
 from typing import Optional, List
 from datetime import date
 import os
 import requests
+import json
 from enum import Enum
 
 # —— FIREBASE ADMIN SDK ——
@@ -23,11 +24,16 @@ app.add_middleware(
 
 # Inicializar Firebase una sola vez
 if not firebase_admin._apps:
-    cred = credentials.Certificate(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
-    firebase_admin.initialize_app(cred)
+    try:
+        cred = credentials.Certificate(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
+        firebase_admin.initialize_app(cred)
+        print("Firebase inicializado correctamente")
+    except Exception as e:
+        print(f"Error al inicializar Firebase: {e}")
+        raise
+
 db = firestore.client()
 COL = db.collection("personas")
-
 
 # validación (sin cambios)
 class DocumentType(str, Enum):
@@ -79,44 +85,116 @@ class PersonaCreate(PersonaBase):
     pass
 
 class Persona(PersonaBase):
-    id: int                 # Pydantic convertirá el string de Firestore a int
+    id: str
     foto_url: Optional[str] = None
 
     class Config:
         from_attributes = True
 
-
-# —— CRUD usando Firestore en lugar de SQLAlchemy —— #
-
 @app.post("/personas/", response_model=Persona)
-async def create_persona(persona: PersonaCreate, foto: UploadFile = File(None)):
-    # Validación de tamaño de foto (igual que antes)
-    foto_url = None
-    if foto:
-        contenido = await foto.read()
-        if len(contenido) > 2 * 1024 * 1024:
-            raise HTTPException(status_code=400, detail="La foto no debe superar los 2MB")
-        foto_url = f"/uploads/{foto.filename}"
+async def create_persona(
+    persona: str = Form(...),
+    foto: UploadFile = File(None)
+):
+    try:
+        print("=== INICIO DE CREACIÓN DE PERSONA ===")
+        print("Datos recibidos:", persona)
+        
+        # Convertir el string JSON a diccionario
+        persona_data = json.loads(persona)
+        print("Datos parseados:", persona_data)
+        
+        # Convertir los valores del frontend a los valores esperados por el backend
+        if persona_data['tipo_documento'] == 'CC':
+            persona_data['tipo_documento'] = 'Cédula'
+        elif persona_data['tipo_documento'] == 'TI':
+            persona_data['tipo_documento'] = 'Tarjeta de identidad'
 
-    # Preparamos datos y guardamos en Firestore
-    data = persona.dict()
-    data["foto_url"] = foto_url
-    doc_ref = COL.document(persona.numero_documento)
-    if doc_ref.get().exists:
-        raise HTTPException(status_code=400, detail="Ya existe esa persona")
-    doc_ref.set(data)
+        if persona_data['genero'] == 'M':
+            persona_data['genero'] = 'Masculino'
+        elif persona_data['genero'] == 'F':
+            persona_data['genero'] = 'Femenino'
+        elif persona_data['genero'] == 'NB':
+            persona_data['genero'] = 'No binario'
+        elif persona_data['genero'] == 'NR':
+            persona_data['genero'] = 'Prefiero no reportar'
 
-    # Registro de log (igual que antes)
-    log_data = {
-        "tipo": "CREATE",
-        "documento": persona.numero_documento,
-        "detalles": f"Creación de persona: {persona.primer_nombre} {persona.apellidos}"
-    }
-    requests.post(f"{os.getenv('LOG_SERVICE_URL')}/logs/", json=log_data)
+        print("Datos convertidos:", persona_data)
 
-    # Devolvemos un dict para que Pydantic cree la Persona (id se castea de str a int)
-    return {"id": persona.numero_documento, **data}
+        # Crear objeto PersonaCreate para validación
+        persona_obj = PersonaCreate(**persona_data)
+        print("Objeto validado:", persona_obj.dict())
 
+        # Manejar la foto
+        foto_url = None
+        if foto:
+            contenido = await foto.read()
+            if len(contenido) > 2 * 1024 * 1024:
+                raise HTTPException(status_code=400, detail="La foto no debe superar los 2MB")
+            foto_url = f"/uploads/{foto.filename}"
+
+        # Preparar datos para Firestore
+        data = persona_obj.dict()
+        # Convertir la fecha de nacimiento a string en formato ISO para Firestore
+        if data.get("fecha_nacimiento"):
+            data["fecha_nacimiento"] = data["fecha_nacimiento"].isoformat()
+            
+        data["foto_url"] = foto_url
+        print("Datos preparados para Firestore:", data)
+
+        # Verificar si ya existe
+        doc_ref = COL.document(persona_obj.numero_documento)
+        doc_snapshot = doc_ref.get()
+        print("Documento existe:", doc_snapshot.exists)
+        
+        if doc_snapshot.exists:
+            raise HTTPException(status_code=400, detail="Ya existe una persona con ese número de documento")
+
+        # Guardar en Firestore
+        try:
+            print("Intentando guardar en Firestore...")
+            doc_ref.set(data)
+            print("Datos guardados exitosamente en Firestore")
+            
+            # Verificar que se guardó
+            doc_verificado = doc_ref.get()
+            print("Verificación de guardado:", doc_verificado.exists)
+            if doc_verificado.exists:
+                print("Datos guardados:", doc_verificado.to_dict())
+            else:
+                print("ERROR: Los datos no se guardaron correctamente")
+                raise Exception("Los datos no se guardaron en Firestore")
+                
+        except Exception as e:
+            print(f"Error al guardar en Firestore: {str(e)}")
+            print(f"Tipo de error: {type(e)}")
+            raise HTTPException(status_code=500, detail=f"Error al guardar en la base de datos: {str(e)}")
+
+        # Registrar en el log
+        try:
+            log_data = {
+                "tipo": "CREATE",
+                "documento": persona_obj.numero_documento,
+                "detalles": f"Creación de persona: {persona_obj.primer_nombre} {persona_obj.apellidos}"
+            }
+            print("Enviando log:", log_data)
+            log_response = requests.post(f"{os.getenv('LOG_SERVICE_URL')}/logs/", json=log_data)
+            print("Respuesta del log service:", log_response.status_code)
+            if not log_response.ok:
+                print(f"Error al registrar log: {log_response.status_code}")
+        except Exception as e:
+            print(f"Error al registrar log: {str(e)}")
+
+        print("=== FIN DE CREACIÓN DE PERSONA ===")
+        return {"id": persona_obj.numero_documento, **data}
+
+    except json.JSONDecodeError as e:
+        print(f"Error al decodificar JSON: {str(e)}")
+        raise HTTPException(status_code=400, detail="Formato de datos inválido")
+    except Exception as e:
+        print(f"Error en create_persona: {str(e)}")
+        print(f"Tipo de error: {type(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
 
 @app.get("/personas/{numero_documento}", response_model=Persona)
 async def read_persona(numero_documento: str):
