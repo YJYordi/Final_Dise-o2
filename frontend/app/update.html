@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CRUD</title>
+    <title>CRUD - Modificar</title>
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -15,11 +15,21 @@
         </div>
         <div class="input-form">
             <label for="doc">Nro. Documento</label>
-            <input  id="doc" type="text" minlength="10" placeholder="xxxxxxxxx" required>
+            <input id="doc" type="text" minlength="1" maxlength="10" placeholder="xxxxxxxxx" required>
         </div>
         <div class="input-form">
-            <button id="update-button" onclick="event.preventDefault(); window.location.href='updateForm.html'">BUSCAR</button>
+            <button type="submit">BUSCAR</button>
         </div>
+        <div id="message"></div>
     </form>
+
+    <!-- Script de depuración para verificar carga -->
+    <script>
+        console.log('update.html: Script tag reached');
+    </script>
+    <script src="updateSearch.js"></script>
+    <script>
+        console.log('update.html: After loading updateSearch.js');
+    </script>
 </body>
 </html>

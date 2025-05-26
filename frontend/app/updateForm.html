@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/x-icon" href="../img/favicon.ico">
+    <link rel="shortcut icon" type="image/x-icon" href="../img/favicon.ico">
     <link rel="stylesheet" href="styles.css">
     <title>CRUD - Actualizar</title>
 </head>
 <body>
     <form class="formulario">
         <div class="titulo">
-            <button type="button" onclick="window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
+            <button onclick="event.preventDefault(); window.location.href='../index.html'"><img src="../img/flecha.png" alt="regresar"></button>
             <h2>ACTUALIZAR</h2>
             <button></button>
         </div>
@@ -24,7 +26,7 @@
                 </div>
                 <div class="input-form">
                     <label for="doc">Nro. Documento</label>
-                    <input id="doc" type="text" minlength="1" maxlength="10" placeholder="xxxxxxxxx" required readonly>
+                    <input id="doc" type="text" maxlength="10" placeholder="xxxxxxxxx" required readonly>
                 </div>
                 <div class="input-form">
                     <label for="primNombre">Primer Nombre</label>
@@ -47,14 +49,14 @@
         <div class="infoSec">
             <div class="input-form">
                 <label for="fechaNac">Fecha de Nacimiento</label>
-                <input id="fechaNac" type="date" required>
+                <input id="fechaNac" type="date">
             </div>            
             <div class="input-form">
                 <label for="genero">Género</label>
-                <select name="" id="genero" required>
-                    <option value="M">Masculino</option>
+                <select name="" id="genero">
                     <option value="F">Femenino</option>
-                    <option value="NB">No binario</option>
+                    <option value="M">Masculino</option>
+                    <option value="NB">No Binario</option>
                     <option value="NR">Prefiero no reportar</option>
                 </select>
             </div>
@@ -64,7 +66,7 @@
             </div>
             <div class="input-form">
                 <label for="cel">Nro. Celular</label>
-                <input id="cel" type="text" minlength="10" maxlength="10" placeholder="xxxxxxxxxx" required>
+                <input id="cel" type="text" maxlength="10" placeholder="xxxxxxxxxx" required>
             </div>
         </div>
         <div class="input-form">
