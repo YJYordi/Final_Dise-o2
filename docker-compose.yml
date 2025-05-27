@@ -43,6 +43,19 @@ services:
     secrets:
       - firebase-sa
 
+  consulta-natural-service:
+    build:
+      context: ./consulta-natural-service
+    ports:
+      - "8003:8003"
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - GOOGLE_APPLICATION_CREDENTIALS=/run/secrets/firebase-sa
+    secrets:
+      - firebase-sa
+    depends_on:
+      - log-service
+
 secrets:
   firebase-sa:
     file: ./service-account.json
